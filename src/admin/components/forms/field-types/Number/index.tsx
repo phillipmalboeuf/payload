@@ -1,5 +1,7 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { NumberFormatBase } from 'react-number-format';
 import useField from '../../useField';
 import Label from '../../Label';
 import Error from '../../Error';
@@ -52,9 +54,7 @@ const NumberField: React.FC<Props> = (props) => {
     condition,
   });
 
-  const handleChange = useCallback((e) => {
-    const val = parseFloat(e.target.value);
-
+  const handleChange = useCallback((val: number) => {
     if (Number.isNaN(val)) {
       setValue('');
     } else {
@@ -87,28 +87,41 @@ const NumberField: React.FC<Props> = (props) => {
         label={label}
         required={required}
       />
-      <div className="number__wrap">
-        <input
-          id={`field-${path.replace(/\./gi, '__')}`}
-          value={typeof value === 'number' ? value : ''}
-          onChange={handleChange}
-          disabled={readOnly}
-          placeholder={getTranslation(placeholder, i18n)}
-          type="number"
-          name={path}
-          step={step}
-          onWheel={(e) => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            e.target.blur();
-          }}
-        />
-        {formatOptions && (
-          <div className="number__formatted">
-            {new Intl.NumberFormat(i18n.language, formatOptions).format(value as number)}
-          </div>
-        )}
-      </div>
+      <NumberFormatBase
+        id={`field-${path.replace(/\./gi, '__')}`}
+        value={typeof value === 'number' ? value : ''}
+        placeholder={getTranslation(placeholder, i18n)}
+        disabled={readOnly}
+        name={path}
+        step={step}
+        onWheel={(e) => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          e.target.blur();
+        }}
+        type="tel"
+        onValueChange={({ floatValue }) => handleChange(floatValue)}
+        removeFormatting={undefined}
+        getCaretBoundary={undefined}
+        {...formatOptions && {
+          format: (n) => new Intl.NumberFormat(i18n.language, formatOptions).format(n as unknown as number),
+        }}
+      />
+      {/* <input
+        id={`field-${path.replace(/\./gi, '__')}`}
+        value={typeof value === 'number' ? value : ''}
+        onChange={handleChange}
+        disabled={readOnly}
+        placeholder={getTranslation(placeholder, i18n)}
+        type="number"
+        name={path}
+        step={step}
+        onWheel={(e) => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          e.target.blur();
+        }}
+      /> */}
       <FieldDescription
         value={value}
         description={description}
